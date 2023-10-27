@@ -1,0 +1,97 @@
+
+@keyframes opac
+{
+    from
+    {
+        opacity:0
+    } 
+    to
+    {
+        opacity:1
+    }
+}
+@keyframes animatetop {
+    from 
+    {
+        top: calc(-1 * var(--distance));
+        opacity: 0;
+    }
+    to 
+    {
+        top: 0;
+        opacity: 1;
+    }
+}
+@keyframes animatebottom {
+    from 
+    {
+        top: calc(var(--distance) - 150px);
+        opacity: 0;
+    }
+    to 
+    {
+        top: 0;
+        opacity: 1;
+    }
+}
+@keyframes spin /*CAN BE:: infinite linear*/
+{
+    
+    0%
+    {
+        transform:rotate(0deg)
+    }
+    100%
+    {
+        transform:rotate(359deg)
+    }
+}
+@keyframes animateleft
+{
+    from
+    {
+        left:-300px;opacity:0
+    } 
+    to
+    {
+        left:0;opacity:1
+    }
+}
+@keyframes animateright
+{
+    from
+    {
+        right:-300px;
+        opacity:0
+    } 
+    to
+    {
+        right:0;
+        opacity:1;
+    }
+}
+.grow {
+    animation-name: animatezoom;
+  }
+@keyframes animatezoom
+{
+    from
+    {
+        transform:scale(0)
+    } 
+    to
+    {
+        transform:scale(1)
+    }
+}
+@keyframes backopac
+{
+    from
+    {
+        background-color: #111
+    } 
+    to
+    {
+        background-color: #24242436
+    }
+}

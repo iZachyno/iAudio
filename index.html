@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Microphone Input & Frequency Analysis</title>
+    <link rel="stylesheet" href="styles.css" />
+    <link rel="stylesheet" href="plugin/all.css" />
+    <link rel="stylesheet" href="plugin/animate.css" />
+    <link rel="stylesheet" href="plugin/@keyframes.css" />
+  </head>
+  <body>
+    <div class="container">
+      <div class="box">
+        <div class="desc">
+          <div class="card-header">
+            <div class="child c1"></div>
+            <div class="child c2">
+              <h1 style="font-weight: normal">iVoice</h1>
+            </div>
+            <hr />
+          </div>
+          <div class="card-body">
+            <div class="child">
+              <h3>Record and process your voice</h3>
+              <p>
+                <br />
+                Lorem ipsum dolor sit amet, consectetur adipisicing elit. Natus
+                consequatur ex, modi magnam suscipit dolorum quo nesciunt.
+              </p>
+            </div>
+            <div class="child" style="flex-direction: row">
+              <div class="child">
+                <div class="child button-wrap">
+                  <img class="mic" src="images/analyze.png" alt="enable_mic" />
+                  <p>Analyze Input</p>
+                </div>
+                <div class="child"></div>
+              </div>
+              <div class="child">
+                <div class="child button-wrap">
+                  <img
+                    class="mic"
+                    src="images/disable_mic.png"
+                    alt="disable_mic"
+                  />
+                  <span style="display: flex; flex-direction: row"
+                    ><p>Status:</p>
+                    <p id="status">off</p></span
+                  >
+                </div>
+                <div class="child"></div>
+              </div>
+            </div>
+          </div>
+          <div class="card-footer">
+            <div class="child">
+              <img
+                style="height: 20px"
+                src="images/earbud.png"
+                alt="play"
+                class="img"
+              />
+            </div>
+            <div class="child">
+              <img src="images/play.png" alt="play" class="img" />
+            </div>
+            <div class="child">
+              <img src="images/stop.png" alt="stop" class="img" />
+            </div>
+          </div>
+        </div>
+        <div class="input-wrap">
+          <div class="card-header">
+            <div class="child c1"></div>
+            <div class="child c2" id="directive">
+              <h2>Speak into the mic</h2>
+            </div>
+          </div>
+          <div class="card-body">
+            <div class="c3"></div>
+            <hr />
+            <div class="c4"></div>
+          </div>
+          <div class="card-footer footer-glt">
+            <div class="child">
+              <div class="child">
+                <img
+                  src="images/comment.png"
+                  alt="improve speech"
+                  class="img"
+                />Refine Audio
+              </div>
+            </div>
+            <div class="child">
+              <div class="child">
+                <img
+                  src="images/comment.png"
+                  alt="improve speech"
+                  class="img"
+                />Refine Audio
+              </div>
+              <div class="child"></div>
+            </div>
+            <div class="child">
+              <div class="child">
+                <img
+                  src="images/comment.png"
+                  alt="improve speech"
+                  class="img"
+                />Refine Audio
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- <h1>Microphone Input & Frequency Analysis</h1>
+    <button id="startButton">Start Recording</button>
+    <button id="stopButton" disabled>Stop Recording</button>
+    <div id="output"></div>
+    <table>
+        <tr>
+            <th>Low</th>
+            <th>Mid</th>
+            <th>High</th>
+        </tr>
+        <tr>
+            <td id="lowValue">0</td>
+            <td id="midValue">0</td>
+            <td id="highValue">0</td>
+        </tr>
+    </table> -->
+    <!-- <div class="p">
+            <h1 style="font-weight: normal">iVoice</h1>
+            <br />
+            <h3>Record and process your voice</h3>
+            <p>
+              <br /><br />
+              Lorem ipsum dolor sit amet, consectetur adipisicing elit. Natus
+              consequatur ex, modi magnam suscipit dolorum quo nesciunt.
+            </p>
+          </div> -->
+    <script>
+      const startButton = document.getElementById("startButton");
+      const stopButton = document.getElementById("stopButton");
+      const output = document.getElementById("output");
+      const audioElement = document.createElement("audio");
+      audioElement.controls = true;
+      output.appendChild(audioElement);
+
+      const lowValue = document.getElementById("lowValue");
+      const midValue = document.getElementById("midValue");
+      const highValue = document.getElementById("highValue");
+
+      let mediaRecorder;
+      let audioChunks = [];
+
+      async function startRecording() {
+        const stream = await navigator.mediaDevices.getUserMedia({
+          audio: true,
+        });
+        mediaRecorder = new MediaRecorder(stream);
+
+        const audioContext = new (window.AudioContext ||
+          window.webkitAudioContext)();
+        const analyser = audioContext.createAnalyser();
+        analyser.fftSize = 256;
+
+        const source = audioContext.createMediaStreamSource(stream);
+        source.connect(analyser);
+        analyser.connect(audioContext.destination);
+
+        const bufferLength = analyser.frequencyBinCount;
+        const dataArray = new Uint8Array(bufferLength);
+
+        audioElement.srcObject = stream;
+
+        mediaRecorder.ondataavailable = (event) => {
+          if (event.data.size > 0) {
+            audioChunks.push(event.data);
+          }
+        };
+
+        mediaRecorder.onstop = () => {
+          const audioBlob = new Blob(audioChunks, { type: "audio/wav" });
+          const audioUrl = URL.createObjectURL(audioBlob);
+          audioElement.src = audioUrl;
+        };
+
+        mediaRecorder.start();
+        startButton.disabled = true;
+        stopButton.disabled = false;
+
+        function updateFrequencyValues() {
+          analyser.getByteFrequencyData(dataArray);
+          const lowRange = dataArray.slice(0, dataArray.length / 3);
+          const midRange = dataArray.slice(
+            dataArray.length / 3,
+            (2 * dataArray.length) / 3
+          );
+          const highRange = dataArray.slice(
+            (2 * dataArray.length) / 3,
+            dataArray.length
+          );
+          const getAverage = (array) =>
+            array.reduce((a, b) => a + b, 0) / array.length;
+
+          lowValue.textContent = getAverage(lowRange);
+          midValue.textContent = getAverage(midRange);
+          highValue.textContent = getAverage(highRange);
+
+          requestAnimationFrame(updateFrequencyValues);
+        }
+
+        updateFrequencyValues();
+      }
+
+      function stopRecording() {
+        mediaRecorder.stop();
+        startButton.disabled = false;
+        stopButton.disabled = true;
+      }
+
+      startButton.addEventListener("click", startRecording);
+      stopButton.addEventListener("click", stopRecording);
+    </script>
+  </body>
+</html>
